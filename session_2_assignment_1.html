@@ -1,0 +1,134 @@
+<!-- A closure is a special kind of object that combines two things: a function, and the environment in which that function was created. The environment consists of any local variables that were in-scope at the time that the closure was created. -->
+<!-- A new set of local variables is kept every time a function with a closure is called (given that the function contains a function declaration inside it, and a reference to that inside function is either returned or an external reference is kept for it in some way). -->
+
+<!-- Dual list using closures -->
+<!DOCTYPE html>
+<html>
+<head>
+	<style>		
+		.row { float: left; width: 100%;	}
+		.column { float: left; width: 40%;	}
+		.midCol { width: 20%; margin-top: 60px;  }
+		.midCol div { padding: 10px 10px; }
+		.selectListBox ul { padding : 5px; mrgin: 0; }
+		.selectListBox { border : 1px solid #ddd; min-height: 200px; max-height: 200px; overflow: scroll; margin: 10px; }
+		.selectListBox li {	cursor: pointer; list-style : none; margin: 2px; }
+		.selectListBox li[selected] { color: bl; background: #ccc; font-weight: bold;}
+	</style>
+	
+</head>
+<body>
+	<div class="wrapper row">
+		<div class="leftCol column">
+			<h2>Available Employees</h2>
+			<div class="selectLeft selectListBox">
+				<ul id="availEmpList">
+				</ul>
+			</div>
+		</div>
+		<div class="midCol column">
+			<div><button id="allfromLeft">Select all from left</button></div>
+			<div><button id="fromLeft">>></button></div> 
+			<div><button id="alltoLeft">Select all from right </button></div>
+			<div><button id="toLeft"><<</button></div>
+		</div>
+		<div class="rightCol column">
+			<h2>Selected Employees</h2>
+			<div class="selectRight selectListBox">
+				<ul id="selectedEmpList">
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+	/*********** Some generic reusable codes *********/
+	
+	Array.prototype.contains = function(v) { // Checks if an element already exsist in an array
+		for(var i = 0; i < this.length; i++) {
+			if(this[i] === v) return true;
+		}
+		return false;
+	};
+	
+	function toggleAttribute(element, attrName){ // Toggles an attribute of an element
+		if(!element.hasAttribute(attrName))
+			element.setAttribute(attrName, "true");
+		else
+			element.removeAttribute(attrName);
+	}
+	
+	function createListElementsFromArray(array, list) { // Creates <li> from array
+		
+			for (var i=0; i< array.length; i++) {
+				var node = document.createElement("LI");                 // Create a <li> node
+				var textnode = document.createTextNode(array[i]);         // Create a text node
+				node.appendChild(textnode);                              // Append the text to <li>
+				document.getElementById(list).appendChild(node); 
+				
+			}
+	}
+	
+	function selectAllChildren(parentEl, attrName) { // Sets an attribute to all children of the parent
+		for (var i= 1; i< parentEl.childNodes.length; i++ ) {
+			parentEl.childNodes[i].setAttribute(attrName, "true");
+		}
+	}
+	
+	/********* Application's code *************/
+	var employees = ["Rohan", "Shruti", "Arko", "Puja", "Nikhil", "Raj", "Jaya", "Mithun", "Dev", "Anny", "Rishi"];
+	
+	function initAvailEmployees (){
+		var initEmp = employees;
+		return createListElementsFromArray(initEmp, "availEmpList");
+	}
+	
+	var initEmpList = initAvailEmployees();
+	
+	
+	
+	function moveEmployees(fromList, toList){		
+		var fromListEl = document.getElementById(fromList);
+		var toListEl = document.getElementById(toList);
+		
+		return function(){
+			console.log(fromListEl.childNodes.length);
+			for (var i=1; i<fromListEl.childNodes.length; i++){
+				if(fromListEl.childNodes[i].hasAttribute("selected")){
+					var selElement = fromListEl.childNodes[i];
+					fromListEl.removeChild(selElement);
+					toListEl.appendChild(selElement);
+				}
+			}
+		}
+	}
+	
+	(function selectEmpFromAndToAvailable() {
+		document.getElementById("availEmpList").onclick = function(e){
+				toggleAttribute(e.target, "selected");
+		};
+		document.getElementById("selectedEmpList").onclick = function(e){
+				toggleAttribute(e.target, "selected");
+		};
+		document.getElementById("fromLeft").onclick = function(e){
+			moveEmployees("availEmpList", "selectedEmpList")();
+		};
+		
+		document.getElementById("toLeft").onclick = function(e){
+			moveEmployees("selectedEmpList", "availEmpList")();
+		};
+		
+		document.getElementById("allfromLeft").onclick = function(e){
+			selectAllChildren(document.getElementById("availEmpList"), "selected");
+			//moveEmployees("availEmpList", "selectedEmpList")();
+		};
+		
+		document.getElementById("alltoLeft").onclick = function(e){
+			selectAllChildren(document.getElementById("selectedEmpList"), "selected");
+			//moveEmployees("selectedEmpList", "availEmpList")();
+		};
+	})();
+	
+	</script>
+</body>
+</html>
